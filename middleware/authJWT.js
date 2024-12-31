@@ -1,23 +1,19 @@
 import jwt from "jsonwebtoken";
+import { customErrorHandler } from "../utils/errorHandler.util.js";
 
 export const authJWT = (req, res, next) => {
-  let token;
-  let authHeader = req.headers.Authorization || req.headers.Authorization;
+  const token = req.header("Authorization")?.replace("Bearer ", "");
 
-  if (authHeader && authHeader.startsWith("Bearer")) {
-    token = authHeader.split(" ")[1];
-    jwt.verify(token, process.env.JWT_SECRET || "", (err, decode) => {
-      if (err) {
-        res
-          .status(401)
-          .json({ success: false, message: "User is not authorized" });
-      }
-      req.user = decode.user;
-      next();
-    });
+  if (!token) {
+    return customErrorHandler(res, 404, "Access token missing");
+  }
 
-    if (!token) {
-      res.status(404).json({ success: false, message: "Token is missing" });
-    }
+  try {
+    const decode = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(decode);
+    req.user = decode;
+    next();
+  } catch (error) {
+    return customErrorHandler(res, 401, "Invalid authorization");
   }
 };
