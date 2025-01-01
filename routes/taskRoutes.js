@@ -1,6 +1,12 @@
 import express from "express";
 import { authJWT } from "../middleware/authJWT.js";
-import { createTask } from "../controllers/task.controller.js";
+import {
+  createTask,
+  deleteTask,
+  getTasks,
+  getTaskById,
+  updateTask,
+} from "../controllers/task.controller.js";
 
 const router = express.Router();
 
@@ -8,12 +14,15 @@ const router = express.Router();
 router.post("/", authJWT, createTask);
 
 // Get tasks
-router.get("/", authJWT);
+router.get("/", authJWT, getTasks);
+
+// Get task by id
+router.get("/:id", authJWT, getTaskById);
 
 // Update task
-router.put("/:id", authJWT);
+router.put("/:id", authJWT, updateTask);
 
 // Delete task
-router.delete("/:id", authJWT);
+router.delete("/:id", authJWT, deleteTask);
 
 export default router;
